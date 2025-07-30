@@ -34,10 +34,27 @@ const ProductList = ({ searchTerm }) => {
     try {
       const q = query(collection(db, "products"), orderBy("index"));
       const snapshot = await getDocs(q);
-      const fetchedProducts = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+     const fetchedProducts = snapshot.docs.map(doc => {
+  const data = doc.data();
+
+  // Normalize name
+  const name = data.name?.toLowerCase().trim().replace(/\s+/g, '');
+
+  // Normalize tags (if they exist)
+  const tags = data.tags?.map(tag =>
+    tag.toLowerCase().trim().replace(/\s+/g, '')
+  ) || [];
+
+  // Add a searchable index field
+  const _searchIndex = [name, ...tags].join(' ');
+
+  return {
+    id: doc.id,
+    ...data,
+    _searchIndex,
+  };
+});
+
       setProducts(fetchedProducts);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -74,6 +91,9 @@ const ProductList = ({ searchTerm }) => {
   const [maxPriceManuallyEdited, setMaxPriceManuallyEdited] = useState(false);
 const [products, setProducts] = useState([]);
 const [loading, setLoading] = useState(false);
+const [showMobileActions, setShowMobileActions] = useState(false);
+
+
 
 const addProduct = async (product) => {
   setLoading(true);
@@ -124,7 +144,7 @@ const deleteProduct = async (id) => {
   const public_id = productToDelete?.public_id;
 
   try {
-    // ✅ 1. Delete image from Cloudinary if it exists
+    //  1. Delete image from Cloudinary if it exists
     if (public_id) {
       await fetch("http://localhost:4000/delete-image", {
         method: "POST",
@@ -135,15 +155,15 @@ const deleteProduct = async (id) => {
       });
     }
 
-    // ✅ 2. Delete product from Firestore
+    //  2. Delete product from Firestore
     await deleteDoc(doc(db, "products", id));
 
-    // ✅ 3. Update local state only (no localStorage)
+    //  3. Update local state only (no localStorage)
     setProducts((prev) => prev.filter((p) => p.id !== id));
 
-    console.log("✅ Product deleted");
+    console.log(" Product deleted");
   } catch (error) {
-    console.error("❌ Error deleting product and/or image:", error);
+    console.error(" Error deleting product and/or image:", error);
   } finally {
     setLoading(false); // Hide spinner
   }
@@ -212,18 +232,27 @@ const clearAllProducts = async () => {
   }
 };
 
+const filteredProducts = useMemo(() => {
+  const normalize = (text) => text?.toLowerCase().trim();
 
+  const searchParts = normalize(searchTerm).split(/\s+/);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const price = Number(product.price);
-      const min = minPrice === '' ? -Infinity : Number(minPrice);
-      const max = maxPrice === '' ? Infinity : Number(maxPrice);
-      const matchesPrice = price >= min && price <= max;
-      return matchesSearch && matchesPrice;
-    });
-  }, [products, searchTerm, minPrice, maxPrice]);
+  return products.filter((product) => {
+    const name = normalize(product.name || '');
+    const generatedTags = name.split(/\s+/); // generate tags from product name
+    const searchableText = name + ' ' + generatedTags.join(' ');
+
+    const matchesSearch = searchParts.every((part) => searchableText.includes(part));
+
+    const price = Number(product.price);
+    const min = minPrice === '' ? -Infinity : Number(minPrice);
+    const max = maxPrice === '' ? Infinity : Number(maxPrice);
+    const matchesPrice = price >= min && price <= max;
+
+    return matchesSearch && matchesPrice;
+  });
+}, [products, searchTerm, minPrice, maxPrice]);
+
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -332,21 +361,34 @@ const deleteSelectedProducts = async () => {
             />
           </div>
 
-         <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-2">
+      {/* Mobile Toggle Button */}
+<div className="sm:hidden mb-2">
+  <button
+    onClick={() => setShowMobileActions(!showMobileActions)}
+    className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 w-full text-left"
+  >
+    {showMobileActions ? 'Hide Actions ▲' : 'Show Actions ▼'}
+  </button>
+</div>
+
+{/* Actions for Desktop & Toggled Mobile */}
+<div
+  className={`flex flex-col sm:flex-row flex-wrap gap-2 mt-2 ${
+    showMobileActions ? '' : 'hidden sm:flex'
+  }`}
+>
   <AddProduct
     addProduct={addProduct}
     editProduct={editProduct}
     editModeData={editModeData}
     setEditModeData={setEditModeData}
-  addThings={(validProducts) => addThings(validProducts, fetchProductsFromFirestore)}
+    addThings={(validProducts) => addThings(validProducts, fetchProductsFromFirestore)}
   />
 
-<ImportButton addThings={(products) => addThings(products)} />
-
-
-
+  <ImportButton addThings={(products) => addThings(products)} />
 
   <ExportButton products={products} />
+
   <button
     onClick={clearAllProducts}
     className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
@@ -355,32 +397,35 @@ const deleteSelectedProducts = async () => {
   </button>
 </div>
 
+
         </div>
       </div>
 
       {/* Multi-delete controls */}
-      {multiDeleteMode && (
-        <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
-          <span className="text-sm text-gray-600">{selectedIds.length} selected</span>
-          <div className="flex gap-2">
-            <button
-              onClick={deleteSelectedProducts}
-              className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-            >
-              Delete Selected
-            </button>
-            <button
-              onClick={() => {
-                setMultiDeleteMode(false);
-                setSelectedIds([]);
-              }}
-              className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+     {multiDeleteMode && (
+  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
+    <span className="text-sm text-gray-600">{selectedIds.length} selected</span>
+
+    <div className="flex flex-col sm:flex-row gap-2">
+      <button
+        onClick={deleteSelectedProducts}
+        className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+      >
+        Delete Selected
+      </button>
+      <button
+        onClick={() => {
+          setMultiDeleteMode(false);
+          setSelectedIds([]);
+        }}
+        className="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* Table */}
       <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
@@ -423,8 +468,15 @@ const deleteSelectedProducts = async () => {
                 )}
               </div>
 
-              <div>Rs. {product.price}</div>
-              <div>{product.quantity}</div>
+             <div>
+  <span className="sm:hidden font-semibold">Price: </span>
+  Rs. {product.price}
+</div>
+<div>
+  <span className="sm:hidden font-semibold">Quantity: </span>
+  {product.quantity}
+</div>
+
 
               <div className="flex gap-2 justify-start sm:justify-end flex-wrap">
                 <button

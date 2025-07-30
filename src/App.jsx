@@ -97,23 +97,24 @@ return (
 
     {!user ? (
       <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            top: 0,
-            left: 0,
-            zIndex: -1,
-          }}
-        >
-          <source src="https://res.cloudinary.com/drul2tusd/video/upload/v1752813813/samples/sea-turtle.mp4" type="video/mp4" />
-        </video>
+<div
+  style={{
+    position: 'fixed', // stays fixed even when scrolling
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundImage: `url('https://res.cloudinary.com/drul2tusd/image/upload/v1753355332/20250724_0408_Stock_Management_Interface_simple_compose_01k0y1v936ef3t0rtsvd3a73wk_jbemil.png')`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: 'contain', // shows full image without cropping
+    backgroundColor: 'white', // fills empty space if aspect ratio doesn’t match
+    zIndex: -1,
+  }}
+></div>
+
+
+
 
         <div
           style={{

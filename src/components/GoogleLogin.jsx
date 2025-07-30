@@ -60,57 +60,57 @@ const GoogleLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-10 w-full max-w-md sm:max-w-lg transition-all duration-300">
-        <div className="text-center space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white drop-shadow-md">Welcome Back</h2>
-          <p className="text-gray-200 text-sm sm:text-base">
-            Sign in or create an account using your Google credentials
-          </p>
+   <div className="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 bg-cover bg-center" style={{ backgroundImage: "url('/your-image-path.jpg')" }}>
+  <div className="bg-white/90 border border-gray-300 rounded-2xl shadow-xl p-6 sm:p-10 w-full max-w-md sm:max-w-lg mt-10">
+    <div className="text-center space-y-6">
+      <h2 className="text-3xl sm:text-4xl font-bold text-black">Welcome Back</h2>
+      <p className="text-gray-700 text-sm sm:text-base font-medium">
+        Sign in or create an account using your Google credentials
+      </p>
 
-          {/* Error Message */}
-          {error && (
-            <div className="text-red-300 text-sm bg-red-800/20 p-2 rounded-md border border-red-400">
-              {error}
-            </div>
-          )}
-
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center px-6 py-3 bg-white bg-opacity-80 border border-gray-300 rounded-full shadow-sm hover:shadow-md transition duration-200 ease-in-out text-gray-800 font-medium text-base sm:text-lg hover:bg-opacity-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
-          >
-            <FcGoogle className="text-2xl mr-3" />
-            Sign in with Google
-          </button>
-
-          <div className="flex items-center my-4">
-            <div className="flex-grow border-t border-white/30"></div>
-            <span className="mx-4 text-white text-sm bg-transparent">Or continue with</span>
-            <div className="flex-grow border-t border-white/30"></div>
-          </div>
-
-          <button
-            onClick={handleGoogleSignUp}
-            className="w-full flex items-center justify-center px-6 py-3 bg-indigo-600 border border-indigo-700 rounded-full shadow-sm hover:shadow-md transition duration-200 ease-in-out text-white font-medium text-base sm:text-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <FcGoogle className="text-2xl mr-3" />
-            Create Account
-          </button>
-
-          <p className="text-xs sm:text-sm text-gray-300 mt-6">
-            By signing in, you agree to our{" "}
-            <a href="#" className="text-indigo-300 hover:text-indigo-100 font-medium">
-              Terms
-            </a>{" "}
-            and{" "}
-            <a href="#" className="text-indigo-300 hover:text-indigo-100 font-medium">
-              Privacy Policy
-            </a>
-            .
-          </p>
+      {error && (
+        <div className="text-red-700 text-sm bg-red-100 p-2 rounded-md border border-red-300">
+          {error}
         </div>
+      )}
+
+      <button
+        onClick={handleGoogleSignIn}
+        className="w-full flex items-center justify-center px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-sm text-base sm:text-lg font-semibold transition"
+      >
+        <FcGoogle className="text-2xl mr-3" />
+        Sign in with Google
+      </button>
+
+      <div className="flex items-center my-4">
+        <div className="flex-grow border-t border-gray-300"></div>
+        <span className="mx-4 text-gray-600 text-sm">Or continue with</span>
+        <div className="flex-grow border-t border-gray-300"></div>
       </div>
+
+      <button
+        onClick={handleGoogleSignUp}
+        className="w-full flex items-center justify-center px-6 py-3 bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-full shadow-sm text-base sm:text-lg font-semibold transition"
+      >
+        <FcGoogle className="text-2xl mr-3" />
+        Create Account
+      </button>
+
+      <p className="text-xs sm:text-sm text-gray-500 mt-6">
+        By signing in, you agree to our{" "}
+        <a href="#" className="text-blue-600 hover:underline font-medium">
+          Terms
+        </a>{" "}
+        and{" "}
+        <a href="#" className="text-blue-600 hover:underline font-medium">
+          Privacy Policy
+        </a>.
+      </p>
     </div>
+  </div>
+</div>
+
+
   );
 };
 
