@@ -16,23 +16,19 @@ import ProductList from './components/ProductList';
 import GoogleLogin from './components/GoogleLogin'; 
 import NoInternetPopup from './components/NoInternetPopup';
 
-
 const App = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    setUser(currentUser);
-    setAuthLoading(false); 
-  });
-
-  return () => unsubscribe();
-}, []);
-
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false); 
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -73,14 +69,12 @@ const App = () => {
 
   const deleteProduct = (id) => {
     setProducts(prev => prev.filter(p => p.id !== id));
- 
   };
 
   const editProduct = (id, updatedProduct) => {
     setProducts(prev =>
       prev.map(p => (p.id === id ? { ...updatedProduct, id } : p))
     );
-    
   };
 
   const handleLogout = () => {
@@ -88,62 +82,59 @@ const App = () => {
   };
 
   if (authLoading) {
-  return <div style={{ textAlign: 'center', marginTop: '100px' }}>Loading...</div>; // or a spinner
-}
-return (
-  <div>
-   
-    <NoInternetPopup />
+    return <div style={{ textAlign: 'center', marginTop: '100px' }}>Loading...</div>;
+  }
 
-    {!user ? (
-      <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-<div
-  style={{
-    position: 'fixed', // stays fixed even when scrolling
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    backgroundImage: `url('https://res.cloudinary.com/drul2tusd/image/upload/v1753355332/20250724_0408_Stock_Management_Interface_simple_compose_01k0y1v936ef3t0rtsvd3a73wk_jbemil.png')`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-    backgroundSize: 'contain', // shows full image without cropping
-    backgroundColor: 'white', // fills empty space if aspect ratio doesn’t match
-    zIndex: -1,
-  }}
-></div>
+  return (
+    <div>
+      <NoInternetPopup />
 
+      {!user ? (
+        <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundImage: `url('https://res.cloudinary.com/drul2tusd/image/upload/v1753355332/20250724_0408_Stock_Management_Interface_simple_compose_01k0y1v936ef3t0rtsvd3a73wk_jbemil.png')`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              backgroundSize: 'contain',
+              backgroundColor: 'white',
+              zIndex: -1,
+            }}
+          ></div>
 
-
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-          }}
-        >
-          <GoogleLogin />
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh',
+            }}
+          >
+            <GoogleLogin />
+          </div>
         </div>
-      </div>
-    ) : (
-      <>
-      
-<NavBar user={user} onLogout={handleLogout} />
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        <ProductList
-          products={products}
-          searchTerm={searchTerm}
-          addProduct={addProduct}
-          deleteProduct={deleteProduct}
-          editProduct={editProduct}
-          setProducts={setProducts}
-        />
-      </>
-    )}
-  </div>
-);
+      ) : (
+        <>
 
-}
+          <NavBar user={user} onLogout={handleLogout} />
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <ProductList
+            products={products}
+            searchTerm={searchTerm}
+            addProduct={addProduct}
+            deleteProduct={deleteProduct}
+            editProduct={editProduct}
+            setProducts={setProducts}
+          />
+        </>
+      )}
+    </div>
+  );
+};
+
 export default App;

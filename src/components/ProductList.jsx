@@ -85,7 +85,7 @@ const ProductList = ({ searchTerm }) => {
   const [multiDeleteMode, setMultiDeleteMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [longPressTimer, setLongPressTimer] = useState(null);
-
+   
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [maxPriceManuallyEdited, setMaxPriceManuallyEdited] = useState(false);
