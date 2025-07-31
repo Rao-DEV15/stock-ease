@@ -1,5 +1,5 @@
-// api/delete-image.js
-
+// app/api/delete-image/route.js
+import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
@@ -8,18 +8,14 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    const { public_id } = body;
 
-export default async function handler(req, res) {
-  if (req.method === "POST") {
-    const { public_id } = req.body;
-
-    try {
-      const result = await cloudinary.uploader.destroy(public_id);
-      return res.status(200).json({ success: true, result });
-    } catch (error) {
-      return res.status(500).json({ success: false, error });
-    }
-  } else {
-    return res.status(405).json({ message: "Method not allowed" });
+    const result = await cloudinary.uploader.destroy(public_id);
+    return NextResponse.json({ success: true, result });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
