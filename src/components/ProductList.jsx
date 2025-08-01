@@ -146,13 +146,14 @@ const deleteProduct = async (id) => {
   try {
     //  1. Delete image from Cloudinary if it exists
     if (public_id) {
-      await fetch("http://localhost:4000/delete-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ public_id }),
-      });
+     await fetch("/delete-image", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ public_id }),
+});
+
     }
 
     //  2. Delete product from Firestore
@@ -208,13 +209,14 @@ const clearAllProducts = async () => {
       const public_id = product.public_id;
 
       if (public_id) {
-        await fetch("http://localhost:4000/delete-image", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ public_id }),
-        });
+     await fetch("/delete-image", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ public_id }),
+});
+
       }
 
       await deleteDoc(doc(db, "products", docSnap.id));
@@ -300,13 +302,14 @@ const deleteSelectedProducts = async () => {
         const product = docSnap.data();
 
         if (product.public_id) {
-          await fetch("http://localhost:4000/delete-image", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ public_id: product.public_id }),
-          });
+         await fetch("/delete-image", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ public_id }),
+});
+
         }
 
         await deleteDoc(docRef);
