@@ -26,7 +26,7 @@ const emptyProduct = { name: '', price: '', quantity: '', image: '', imageFile: 
 
   const deleteFromCloudinary = async (public_id) => {
     try {
-      const res = await fetch("http://localhost:4000/delete-image", {
+      const res = await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ public_id }),
