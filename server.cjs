@@ -1,29 +1,30 @@
 const express = require("express");
-const cloudinary = require("cloudinary").v2;
+const path = require("path");
 const cors = require("cors");
-require("dotenv").config();
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-});
-
-
-// DELETE endpoint
+// 👉 Your backend routes here
 app.post("/delete-image", async (req, res) => {
   const { public_id } = req.body;
   try {
-    const result = await cloudinary.uploader.destroy(public_id);
-    res.status(200).json({ success: true, result });
+    // your cloudinary deletion code
+    res.status(200).json({ message: "Deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, error });
+    res.status(500).json({ error: error.message });
   }
 });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// 👉 Serve frontend
+app.use(express.static(path.join(__dirname, "client/build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/build/index.html"));
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
