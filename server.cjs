@@ -1,23 +1,27 @@
-const express = require("express");
-const path = require("path");
-const cors = require("cors");
+import express from "express";
+import path from "path";
+import cors from "cors";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// 👉 Your backend routes here
 app.post("/delete-image", async (req, res) => {
   const { public_id } = req.body;
   try {
-    // your cloudinary deletion code
+    // cloudinary deletion
     res.status(200).json({ message: "Deleted" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// 👉 Serve frontend
+// 👇 Serve frontend
 app.use(express.static(path.join(__dirname, "client/build")));
 
 app.get("*", (req, res) => {
