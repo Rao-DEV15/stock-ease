@@ -146,7 +146,8 @@ const deleteProduct = async (id) => {
   try {
     //  1. Delete image from Cloudinary if it exists
     if (public_id) {
-     await fetch("/delete-image", {
+     await fetch("https://stock-ease-production.up.railway.app/delete-image", {
+
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -209,7 +210,7 @@ const clearAllProducts = async () => {
       const public_id = product.public_id;
 
       if (public_id) {
-     await fetch("/delete-image", {
+await fetch("https://stock-ease-production.up.railway.app/delete-image", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -302,7 +303,7 @@ const deleteSelectedProducts = async () => {
         const product = docSnap.data();
 
         if (product.public_id) {
-         await fetch("/delete-image", {
+await fetch("https://stock-ease-production.up.railway.app/delete-image", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
