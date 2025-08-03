@@ -192,17 +192,24 @@ const deleteProduct = async (id) => {
 
   try {
     //  1. Delete image from Cloudinary if it exists
-    if (public_id) {
-     await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
+       const auth = getAuth();
+  const user = auth.currentUser;
 
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ public_id }),
-});
+  if (user?.email === "test@stockease.com") {
+    toast.error("You can't delete a product on the demo account!");
+    return;
+  }
 
-    }
+// Proceed with delete
+if (public_id) {
+  await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ public_id }),
+  });
+}
 
     //  2. Delete product from Firestore
     await deleteDoc(doc(db, "products", id));
@@ -233,7 +240,7 @@ const handleConfirmDelete = async () => {
     console.error("Failed to delete product from Firestore:", error);
   }
 };
-const clearAllProducts = async () => { 
+const clearAllProducts = async () => {
   const result = await Swal.fire({
     title: 'Are you sure?',
     text: 'This will delete all your products and their images permanently!',
@@ -247,18 +254,28 @@ const clearAllProducts = async () => {
 
   if (!result.isConfirmed) return;
 
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (user?.email === "test@stockease.com") {
+    toast.error("You can't delete a product on the demo account!");
+    return;
+  }
+
   setLoading(true);
 
   try {
     const q = query(
       collection(db, "products"),
-      where("userId", "==", auth.currentUser.uid) // <- filter by current user
+      where("userId", "==", user.uid) // ✅ now user is defined
     );
+
     const snapshot = await getDocs(q);
 
     const deletePromises = snapshot.docs.map(async (docSnap) => {
       const product = docSnap.data();
       const public_id = product.public_id;
+  
 
       if (public_id) {
         await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
