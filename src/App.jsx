@@ -89,23 +89,21 @@ const App = () => {
     <div>
       <NoInternetPopup />
 
-      {!user ? (
-        <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              backgroundImage: `url('https://res.cloudinary.com/drul2tusd/image/upload/v1753355332/20250724_0408_Stock_Management_Interface_simple_compose_01k0y1v936ef3t0rtsvd3a73wk_jbemil.png')`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              backgroundSize: 'contain',
-              backgroundColor: 'white',
-              zIndex: -1,
-            }}
-          ></div>
+     {!user ? (
+  <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)', // soft purple-blue gradient
+        backgroundColor: 'white',
+        zIndex: -1,
+      }}
+    ></div>
+
 
           <div
             style={{
