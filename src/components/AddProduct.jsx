@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { getAuth } from "firebase/auth";
+import { getDocs, query, collection, where } from "firebase/firestore";
+import { db } from "./FireBase"; // adjust the path as per your project structure
 
 const AddProduct = ({ editProduct, editModeData, setEditModeData, addThings }) => {
 const emptyProduct = { name: '', price: '', quantity: '', image: '', imageFile: null, preview: '' };
@@ -84,6 +87,15 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
 
+const auth = getAuth();
+const user = auth.currentUser;
+
+if (!user) {
+  alert("User not logged in");
+  setLoading(false);
+  return;
+}
+
   const validProducts = products.filter(
     (p) => p.name && p.price && p.quantity
   );
@@ -108,13 +120,34 @@ const handleSubmit = async (e) => {
         publicId = uploadResult.public_id;
       }
 
-      processedProducts.push({
-        name: p.name,
-        price: p.price,
-        quantity: p.quantity,
-        image: imageWasRemoved ? "" : imageUrl || p.image || "",
-        public_id: imageWasRemoved ? "" : publicId || p.public_id || "",
-      });
+// Step 1: Fetch all products of this user
+const q = query(collection(db, "products"), where("userId", "==", user.uid));
+const snapshot = await getDocs(q);
+
+// Step 2: Find max index
+let maxIndex = 0;
+snapshot.forEach((doc) => {
+  const data = doc.data();
+  if (typeof data.index === "number" && data.index > maxIndex) {
+    maxIndex = data.index;
+  }
+});
+
+// Step 3: Assign next index
+const newIndex = maxIndex + 1;
+
+// Step 4: Add new product
+processedProducts.push({
+  name: p.name,
+  price: p.price,
+  quantity: p.quantity,
+  image: imageWasRemoved ? "" : imageUrl || p.image || "",
+  public_id: imageWasRemoved ? "" : publicId || p.public_id || "",
+  userId: user.uid,
+  index: newIndex,
+});
+
+
     }
 
     if (editModeData) {

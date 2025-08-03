@@ -4,12 +4,13 @@ import AddProduct from './AddProduct';
 import ImportButton from './ImportButton';
 import ExportButton from './ExportButton';
 import { db } from './FireBase'; 
-import { collection, addDoc, Timestamp, doc, setDoc,orderBy,query,onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, doc, setDoc,orderBy,query,onSnapshot,writeBatch,where } from 'firebase/firestore';
 import { getDocs,getDoc } from "firebase/firestore";
 import {  deleteDoc } from "firebase/firestore";
 import Spinner from './Spinner';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import { getAuth,onAuthStateChanged } from "firebase/auth";
 
 
 const addThings = async (validProducts) => {
@@ -30,9 +31,14 @@ const addThings = async (validProducts) => {
 };
 
 const ProductList = ({ searchTerm }) => {
-  const fetchProductsFromFirestore = async () => {
+   const fetchProductsFromFirestore = async () => {
     try {
-      const q = query(collection(db, "products"), orderBy("index"));
+const q = query(
+  collection(db, "products"),
+  where("userId", "==", user.uid),
+  orderBy("index")
+);
+
       const snapshot = await getDocs(q);
      const fetchedProducts = snapshot.docs.map(doc => {
   const data = doc.data();
@@ -52,6 +58,7 @@ const ProductList = ({ searchTerm }) => {
     id: doc.id,
     ...data,
     _searchIndex,
+    index: data.index || i, // fallback if index is missing
   };
 });
 
@@ -59,23 +66,50 @@ const ProductList = ({ searchTerm }) => {
     } catch (error) {
       console.error("Error fetching products:", error);
     }
-  }; 
+  }; const auth = getAuth();
+useEffect(() => {
+  const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      setProducts([]);
+      return;
+    }
+const q = query(
+  collection(db, "products"),
+  where("userId", "==", user.uid), // <-- match your field name
+  orderBy("index")
+);
 
+    const unsubscribeFirestore = onSnapshot(q, (snapshot) => {
+      const fetchedProducts = snapshot.docs.map((doc, i) => {
+        const data = doc.data();
 
- 
-  useEffect(() => {
-  const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        const name = data.name?.toLowerCase().trim().replace(/\s+/g, '');
+        const tags = data.tags?.map(tag =>
+          tag.toLowerCase().trim().replace(/\s+/g, '')
+        ) || [];
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    const fetchedProducts = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setProducts(fetchedProducts); 
+        const _searchIndex = [name, ...tags].join(' ');
+
+        return {
+          id: doc.id,
+          ...data,
+          _searchIndex,
+          index: data.index ?? i,
+        };
+      });
+
+      setProducts(fetchedProducts);
+    });
+
+    return () => unsubscribeFirestore();
   });
 
-  return () => unsubscribe(); 
+  return () => unsubscribeAuth();
 }, []);
+
+
+
+
   const [editModeData, setEditModeData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [imageModal, setImageModal] = useState(null);
@@ -99,10 +133,12 @@ const addProduct = async (product) => {
   setLoading(true);
   const id = product.id || Date.now().toString();
 
-  const productWithTimestamp = {
-    ...product,
-    createdAt: Timestamp.now(),
-  };
+ const productWithTimestamp = {
+  ...product,
+  createdAt: Timestamp.now(),
+  userId: auth.currentUser.uid,  // <-- Add this line
+};
+
 
   try {
     const productRef = doc(db, "products", id);
@@ -125,7 +161,17 @@ const editProduct = async (id, updatedProduct) => {
   setLoading(true);
   try {
     const productRef = doc(db, "products", id);
-    await setDoc(productRef, { ...updatedProduct, updatedAt: Timestamp.now() }, { merge: true });
+
+    // ✅ Ensure userId is included
+    if (!updatedProduct.userId) {
+      const existing = await getDoc(productRef);
+      updatedProduct.userId = existing.data()?.userId;
+    }
+
+    await setDoc(productRef, {
+      ...updatedProduct,
+      updatedAt: Timestamp.now()
+    }, { merge: true });
 
     setProducts(prev =>
       prev.map(p => (p.id === id ? { ...p, ...updatedProduct } : p))
@@ -136,6 +182,7 @@ const editProduct = async (id, updatedProduct) => {
     setLoading(false);
   }
 };
+
 
 const deleteProduct = async (id) => {
   setLoading(true); // Optional: Show spinner
@@ -186,10 +233,10 @@ const handleConfirmDelete = async () => {
     console.error("Failed to delete product from Firestore:", error);
   }
 };
-const clearAllProducts = async () => {
+const clearAllProducts = async () => { 
   const result = await Swal.fire({
     title: 'Are you sure?',
-    text: 'This will delete all products and their images permanently!',
+    text: 'This will delete all your products and their images permanently!',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
@@ -200,24 +247,27 @@ const clearAllProducts = async () => {
 
   if (!result.isConfirmed) return;
 
-  setLoading(true); // Start loading
+  setLoading(true);
 
   try {
-    const snapshot = await getDocs(collection(db, "products"));
+    const q = query(
+      collection(db, "products"),
+      where("userId", "==", auth.currentUser.uid) // <- filter by current user
+    );
+    const snapshot = await getDocs(q);
 
     const deletePromises = snapshot.docs.map(async (docSnap) => {
       const product = docSnap.data();
       const public_id = product.public_id;
 
       if (public_id) {
-await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ public_id }),
-});
-
+        await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ public_id }),
+        });
       }
 
       await deleteDoc(doc(db, "products", docSnap.id));
@@ -231,9 +281,10 @@ await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
     console.error("❌ Error clearing all products:", error);
     toast.error("❌ Failed to delete all products.");
   } finally {
-    setLoading(false); // End loading
+    setLoading(false);
   }
 };
+
 
 const filteredProducts = useMemo(() => {
   const normalize = (text) => text?.toLowerCase().trim();
@@ -399,6 +450,9 @@ await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
   >
     Clear All
   </button>
+
+ 
+
 </div>
 
 

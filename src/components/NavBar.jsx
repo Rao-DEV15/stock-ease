@@ -19,18 +19,18 @@ const NavBar = ({ user, onLogout }) => {
   };
 
   return (
-    <nav className="bg-blue-600 text-white px-4 py-4 shadow-md">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center">
-      
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-wide text-center sm:text-left">
+    <nav className="bg-blue-600 text-white px-4 py-3 sm:py-4 shadow-md">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-2 sm:px-4">
+        {/* Logo */}
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide truncate">
           STOCK EASE
         </h1>
 
-       
+        {/* Logout button */}
         {user && (
           <button
             onClick={handleLogoutClick}
-            className="mt-2 sm:mt-0 bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-semibold transition-all w-full sm:w-auto text-center"
+            className="text-sm sm:text-base bg-red-500 hover:bg-red-600 px-3 sm:px-4 py-2 rounded font-semibold transition-all"
           >
             Logout
           </button>

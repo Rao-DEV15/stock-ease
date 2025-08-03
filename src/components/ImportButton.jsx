@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Plus } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { toast } from 'react-toastify';
+import { getAuth } from "firebase/auth"; // Add this at the top
 
 const ImportButton = ({ addThings }) => {
   const [showModal, setShowModal] = useState(false);
@@ -15,6 +16,12 @@ const ImportButton = ({ addThings }) => {
 
     reader.onload = async (evt) => {
       try {
+  const user = getAuth().currentUser; // 👈 Use getAuth() directly here
+if (!user) {
+  console.error("User not logged in");
+  return;
+}
+
         const data = new Uint8Array(evt.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -41,16 +48,28 @@ if (!valid) {
   toast.error('Invalid file format. Columns must be: name, price, quantity');
   return;
 }
+
+const auth = getAuth();
+const currentUser = auth.currentUser;
+
+if (!currentUser) {
+  toast.error("You must be logged in to import products.");
+  setLoading(false);
+  return;
+}
+const userId = user.uid;
+
 const formatted = json.map((item, index) => ({
   name: item.name?.trim() || "Unnamed Product",
   price: Number(item.price) || 0,
   quantity: Number(item.quantity) || 0,
   createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
   index: item.index ?? index,
+  userId: userId, // ✅ You can also just write userId instead of user.uid
 }));
 
+await addThings(formatted);
 
-        await addThings(formatted); //  Upload to Firestore
 
 toast.success(' Products uploaded to Database!');
 setShowModal(false);
