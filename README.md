@@ -1,20 +1,22 @@
-StockEase - Full Stack CRUD App
-StockEase is a full-stack React application for managing products with image uploads. It uses Firebase for authentication and database, and Cloudinary to store and delete images.
+**🚀 StockEase - Full Stack CRUD App**
+
+StockEase is a full-stack React application for managing products with image uploads.
+It uses Firebase for authentication and database, and Cloudinary to store and delete images.
 
 🔧 Features
-Add, update, and delete products
+➕ Add, ✏️ Update, and ❌ Delete products
 
-Upload and manage product images via Cloudinary
+🖼️ Upload and manage product images via Cloudinary
 
-Firebase Authentication
+🔐 Firebase Authentication
 
-Store product details (name, price, image, etc.) in Firestore
+🗃️ Store product details (name, price, image, etc.) in Firestore
 
-Built with React + Vite
+⚛️ Built with React + Vite
 
-Styled using Tailwind CSS
+🎨 Styled using Tailwind CSS
 
-Backend with Express.js
+🖥️ Backend powered by Express.js
 
 🛠️ Tech Stack
 Frontend: React, Vite, Tailwind CSS
@@ -24,3 +26,4 @@ Backend: Express.js, Cloudinary
 Database: Firebase Firestore
 
 Auth: Firebase Authentication
+
