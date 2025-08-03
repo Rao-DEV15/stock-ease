@@ -1,12 +1,26 @@
-# React + Vite
+StockEase - Full Stack CRUD App
+StockEase is a full-stack React application for managing products with image uploads. It uses Firebase for authentication and database, and Cloudinary to store and delete images.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🔧 Features
+Add, update, and delete products
 
-Currently, two official plugins are available:
+Upload and manage product images via Cloudinary
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Firebase Authentication
 
-## Expanding the ESLint configuration
+Store product details (name, price, image, etc.) in Firestore
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Built with React + Vite
+
+Styled using Tailwind CSS
+
+Backend with Express.js
+
+🛠️ Tech Stack
+Frontend: React, Vite, Tailwind CSS
+
+Backend: Express.js, Cloudinary
+
+Database: Firebase Firestore
+
+Auth: Firebase Authentication
