@@ -6,7 +6,7 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 import { FcGoogle } from "react-icons/fc";
-import { toast } from "react-toastify";
+import Spinner from "./Spinner";
 
 const GoogleLogin = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -74,11 +74,7 @@ const GoogleLogin = () => {
       await signInWithEmailAndPassword(auth, "test@stockease.com", "123456");
       console.log("Demo user signed in.");
 
-      toast.info("🚫 You can't delete products in demo account", {
-        autoClose: false,
-        closeOnClick: true,
-        draggable: true,
-      });
+    
     } catch (error) {
       console.error("Demo login failed", error);
       setError("Demo login failed. Please try again.");
