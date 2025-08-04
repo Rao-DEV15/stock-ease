@@ -375,7 +375,7 @@ await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
   headers: {
     "Content-Type": "application/json",
   },
-  body: JSON.stringify({ public_id }),
+body: JSON.stringify({ public_id: product.public_id }),
 });
 
         }
