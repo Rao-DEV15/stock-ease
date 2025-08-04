@@ -267,7 +267,7 @@ const clearAllProducts = async () => {
   try {
     const q = query(
       collection(db, "products"),
-      where("userId", "==", user.uid) // ✅ now user is defined
+      where("userId", "==", user.uid) 
     );
 
     const snapshot = await getDocs(q);
@@ -310,7 +310,7 @@ const filteredProducts = useMemo(() => {
 
   return products.filter((product) => {
     const name = normalize(product.name || '');
-    const generatedTags = name.split(/\s+/); // generate tags from product name
+    const generatedTags = name.split(/\s+/); 
     const searchableText = name + ' ' + generatedTags.join(' ');
 
     const matchesSearch = searchParts.every((part) => searchableText.includes(part));

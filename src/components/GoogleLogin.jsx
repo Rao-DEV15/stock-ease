@@ -6,7 +6,6 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 import { FcGoogle } from "react-icons/fc";
-import Spinner from "./Spinner";
 
 const GoogleLogin = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
