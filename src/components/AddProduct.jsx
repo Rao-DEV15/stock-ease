@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getDocs, query, collection, where } from "firebase/firestore";
 import { db } from "./FireBase"; // adjust the path as per your project structure
 
-const AddProduct = ({ editProduct, editModeData, setEditModeData, addThings }) => {
+const AddProduct = ({ editProduct, editModeData, setEditModeData, addThings,isVisible }) => {
 const emptyProduct = { name: '', price: '', quantity: '', image: '', imageFile: null, preview: '' };
   const [products, setProducts] = useState([emptyProduct]);
   const [isOpen, setIsOpen] = useState(false);
@@ -174,12 +174,20 @@ processedProducts.push({
           <div className="w-12 h-12 border-4 border-white border-t-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
-      <button
-        className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm sm:text-base hover:bg-blue-700 transition"
-        onClick={() => setIsOpen(true)}
-      >
-        Add Product
-      </button>
+  {isVisible && (
+  <button
+    className="mt-2 max-sm:mt-[-11px] bg-blue-600 text-white px-4 py-2 rounded-md text-sm sm:text-base hover:bg-blue-700 transition"
+    onClick={() => {
+      setProducts([emptyProduct]);
+      setEditModeData?.(null);
+      setIsOpen(true);
+    }}
+  >
+    Add Product
+  </button>
+)}
+
+
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-2 sm:px-4">

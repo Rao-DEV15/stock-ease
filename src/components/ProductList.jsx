@@ -162,7 +162,6 @@ const editProduct = async (id, updatedProduct) => {
   try {
     const productRef = doc(db, "products", id);
 
-    // ✅ Ensure userId is included
     if (!updatedProduct.userId) {
       const existing = await getDoc(productRef);
       updatedProduct.userId = existing.data()?.userId;
@@ -432,8 +431,10 @@ await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
               className="w-36 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+         
 
-      {/* Mobile Toggle Button */}
+{/* Mobile Toggle Button */}
+
 <div className="sm:hidden mb-2">
   <button
     onClick={() => setShowMobileActions(!showMobileActions)}
@@ -445,18 +446,10 @@ await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
 
 {/* Actions for Desktop & Toggled Mobile */}
 <div
-  className={`flex flex-col sm:flex-row flex-wrap gap-2 mt-2 ${
+  className={`flex flex-col sm:flex-row flex-wrap gap-2 mt-4 sm:mt-2 ${
     showMobileActions ? '' : 'hidden sm:flex'
   }`}
 >
-  <AddProduct
-    addProduct={addProduct}
-    editProduct={editProduct}
-    editModeData={editModeData}
-    setEditModeData={setEditModeData}
-    addThings={(validProducts) => addThings(validProducts, fetchProductsFromFirestore)}
-  />
-
   <ImportButton addThings={(products) => addThings(products)} />
 
   <ExportButton products={products} />
@@ -469,8 +462,16 @@ await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
   </button>
 
  
-
 </div>
+
+<AddProduct
+  addProduct={addProduct}
+  editProduct={editProduct}
+  editModeData={editModeData}
+  setEditModeData={setEditModeData}
+  addThings={(validProducts) => addThings(validProducts, fetchProductsFromFirestore)}
+  isVisible={!showMobileActions} 
+/>
 
 
         </div>
@@ -556,7 +557,10 @@ await fetch("https://final-backend-2-production.up.railway.app/delete-image", {
               <div className="flex gap-2 justify-start sm:justify-end flex-wrap">
                 <button
                   className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                  onClick={() => setEditModeData({ id: product.id, product })}
+                 onClick={() => {
+  setEditModeData({ id: product.id, product: { ...product } });
+}}
+
                 >
                   Edit
                 </button>

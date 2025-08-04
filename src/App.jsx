@@ -30,20 +30,7 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
 
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const allProducts = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setProducts(allProducts);
-    });
-
-    return () => unsubscribe();
-  }, [user]);
 
   const addProduct = async (product) => {
     try {
