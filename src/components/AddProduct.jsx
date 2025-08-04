@@ -174,18 +174,23 @@ processedProducts.push({
           <div className="w-12 h-12 border-4 border-white border-t-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
-  {isVisible && (
-  <button
-    className="mt-2 max-sm:mt-[-11px] bg-blue-600 text-white px-4 py-2 rounded-md text-sm sm:text-base hover:bg-blue-700 transition"
-    onClick={() => {
-      setProducts([emptyProduct]);
-      setEditModeData?.(null);
-      setIsOpen(true);
-    }}
-  >
-    Add Product
-  </button>
+{isVisible && (
+  <div className="max-w-full flex justify-start mt-0 sm:mt-2 px-2 sm:px-0">
+    <button
+      className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition w-auto max-w-[200px] sm:max-w-none"
+      onClick={() => {
+        setProducts([emptyProduct]);
+        setEditModeData?.(null);
+        setIsOpen(true);
+      }}
+    >
+      Add Product
+    </button>
+  </div>
 )}
+
+
+
 
 
 
