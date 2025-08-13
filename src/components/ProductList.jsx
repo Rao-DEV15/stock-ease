@@ -11,7 +11,8 @@ import Spinner from './Spinner';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import { getAuth,onAuthStateChanged } from "firebase/auth";
-
+import Bill from "./Bill"
+import LowStockNotifications from "./LowStockNotifications";
 
 const addThings = async (validProducts) => {
   try {
@@ -39,26 +40,22 @@ const q = query(
   orderBy("index")
 );
 
-      const snapshot = await getDocs(q);
-     const fetchedProducts = snapshot.docs.map(doc => {
+    const snapshot = await getDocs(q);
+    const fetchedProducts = snapshot.docs.map((doc, i) => {
   const data = doc.data();
 
-  // Normalize name
   const name = data.name?.toLowerCase().trim().replace(/\s+/g, '');
+  const tags = data.tags?.map(tag => tag.toLowerCase().trim().replace(/\s+/g, '')) || [];
+  const barcode = (data.barcode || '').toLowerCase().trim();
 
-  // Normalize tags (if they exist)
-  const tags = data.tags?.map(tag =>
-    tag.toLowerCase().trim().replace(/\s+/g, '')
-  ) || [];
-
-  // Add a searchable index field
-  const _searchIndex = [name, ...tags].join(' ');
+  // Add barcode to search index along with name and tags
+  const _searchIndex = [name, ...tags, barcode].join(' ');
 
   return {
     id: doc.id,
     ...data,
     _searchIndex,
-    index: data.index || i, // fallback if index is missing
+    index: data.index ?? i,
   };
 });
 
@@ -301,17 +298,20 @@ const clearAllProducts = async () => {
   }
 };
 
-
 const filteredProducts = useMemo(() => {
-  const normalize = (text) => text?.toLowerCase().trim();
+  const normalize = (text) => text?.toLowerCase().trim() || '';
 
   const searchParts = normalize(searchTerm).split(/\s+/);
 
   return products.filter((product) => {
-    const name = normalize(product.name || '');
-    const generatedTags = name.split(/\s+/); 
-    const searchableText = name + ' ' + generatedTags.join(' ');
+    const name = normalize(product.name);
+    const barcode = normalize(product.barcode); // <-- added barcode field
 
+    const generatedTags = name.split(/\s+/); 
+    // Combine name, tags, and barcode into searchable text
+    const searchableText = [name, ...generatedTags, barcode].join(' ');
+
+    // Check if all parts of searchTerm appear in searchableText
     const matchesSearch = searchParts.every((part) => searchableText.includes(part));
 
     const price = Number(product.price);
@@ -322,6 +322,7 @@ const filteredProducts = useMemo(() => {
     return matchesSearch && matchesPrice;
   });
 }, [products, searchTerm, minPrice, maxPrice]);
+
 
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -399,7 +400,6 @@ body: JSON.stringify({ public_id: product.public_id }),
   return (   
     
     <div className="max-w-5xl mx-auto mt-10 p-4 sm:p-6 bg-white shadow-lg rounded-2xl">
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <h2 className="text-2xl font-bold text-gray-800">
@@ -449,10 +449,11 @@ body: JSON.stringify({ public_id: product.public_id }),
   className={`flex flex-col sm:flex-row flex-wrap gap-2 mt-4 sm:mt-2 ${
     showMobileActions ? '' : 'hidden sm:flex'
   }`}
->
-  <ImportButton addThings={(products) => addThings(products)} />
+>  
+ <LowStockNotifications />
+ <Bill/>
 
-  <ExportButton products={products} />
+
 
   <button
     onClick={clearAllProducts}
@@ -476,7 +477,7 @@ body: JSON.stringify({ public_id: product.public_id }),
 
         </div>
       </div>
-
+  
       {/* Multi-delete controls */}
      {multiDeleteMode && (
   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
@@ -549,8 +550,9 @@ body: JSON.stringify({ public_id: product.public_id }),
   Rs. {product.price}
 </div>
 <div>
-  <span className="sm:hidden font-semibold">Quantity: </span>
-  {product.quantity}
+  <span style={{ color: Number(product.quantity) <= 5 ? "red" : "inherit" }}>
+    {product.quantity}
+  </span>
 </div>
 
 

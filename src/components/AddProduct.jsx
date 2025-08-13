@@ -4,7 +4,7 @@ import { getDocs, query, collection, where } from "firebase/firestore";
 import { db } from "./FireBase"; // adjust the path as per your project structure
 
 const AddProduct = ({ editProduct, editModeData, setEditModeData, addThings,isVisible }) => {
-const emptyProduct = { name: '', price: '', quantity: '', image: '', imageFile: null, preview: '' };
+const emptyProduct = { name: '', price: '', quantity: '',barcode: '', image: '', imageFile: null, preview: '' };
   const [products, setProducts] = useState([emptyProduct]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -141,6 +141,7 @@ processedProducts.push({
   name: p.name,
   price: p.price,
   quantity: p.quantity,
+  barcode: p.barcode || '',
   image: imageWasRemoved ? "" : imageUrl || p.image || "",
   public_id: imageWasRemoved ? "" : publicId || p.public_id || "",
   userId: user.uid,
@@ -202,85 +203,109 @@ processedProducts.push({
             </h3>
 
             <form onSubmit={handleSubmit}>
-              <div className="hidden sm:grid grid-cols-6 gap-4 font-semibold text-sm border-b pb-2 mb-2">
+              <div className="hidden sm:grid grid-cols-7 gap-4 font-semibold text-sm border-b pb-2 mb-2">
                 <div>Name</div>
                 <div>Price</div>
                 <div>Qty</div>
+                <div>Barcode</div>
                 <div>Image</div>
                 <div>Preview</div>
                 <div>Action</div>
+
               </div>
 
-              {products.map((product, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col sm:grid sm:grid-cols-6 gap-4 items-center border-b py-2"
-                >
-                  <input
-                    type="text"
-                    value={product.name}
-                    onChange={(e) => handleChange(index, 'name', e.target.value)}
-                    className="px-2 py-1 border rounded text-sm w-full"
-                    placeholder="Name"
-                  />
-                  <input
-                    type="number"
-                    value={product.price}
-                    onChange={(e) => handleChange(index, 'price', e.target.value)}
-                    className="px-2 py-1 border rounded text-sm w-full"
-                    placeholder="Price"
-                  />
-                  <input
-                    type="number"
-                    value={product.quantity}
-                    onChange={(e) => handleChange(index, 'quantity', e.target.value)}
-                    className="px-2 py-1 border rounded text-sm w-full"
-                    placeholder="Qty"
-                  />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(e, index)}
-                    className="text-sm w-full"
-                  />
-                  <div className="flex justify-center w-full">
-                    {product.preview && (
-                      <div className="flex flex-col items-center">
-                        <img
-                          src={product.preview}
-                          alt="Preview"
-                          className="w-12 h-12 object-cover rounded border"
-                        />
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (product.public_id) {
-                              await deleteFromCloudinary(product.public_id);
-                            }
-                            handleChange(index, 'imageFile', null);
-                            handleChange(index, 'preview', '');
-                            handleChange(index, 'public_id', '');
-                          }}
-                          className="text-[10px] text-red-500 underline"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    {products.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeRow(index)}
-                        className="text-sm text-red-500 underline"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+         {products.map((product, index) => (
+  <div
+    key={index}
+    className="flex flex-col sm:grid sm:grid-cols-7 gap-4 items-center border-b py-2"
+  >
+    <input
+      type="text"
+      value={product.name}
+      onChange={(e) => handleChange(index, 'name', e.target.value)}
+      className="px-2 py-1 border rounded text-sm w-full"
+      placeholder="Name"
+    />
+    <input
+      type="number"
+      value={product.price}
+      onChange={(e) => handleChange(index, 'price', e.target.value)}
+      className="px-2 py-1 border rounded text-sm w-full"
+      placeholder="Price"
+    />
+    <input
+      type="number"
+      value={product.quantity}
+      onChange={(e) => handleChange(index, 'quantity', e.target.value)}
+      className="px-2 py-1 border rounded text-sm w-full"
+      placeholder="Qty"
+    />
+    {/* Barcode input added here */}
+<input
+  type="text"
+  value={product.barcode}
+  onChange={(e) => {
+    const input = e.target.value;
+    if (input === '' || /^\d+$/.test(input)) {
+      handleChange(index, 'barcode', input);
+    }
+  }}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // stops form submission
+    }
+  }}
+  className="px-2 py-1 border rounded text-sm w-full"
+  placeholder="Barcode"
+/>
+
+
+
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => handleImageChange(e, index)}
+      className="text-sm w-full"
+    />
+    <div className="flex justify-center w-full">
+      {product.preview && (
+        <div className="flex flex-col items-center">
+          <img
+            src={product.preview}
+            alt="Preview"
+            className="w-12 h-12 object-cover rounded border"
+          />
+          <button
+            type="button"
+            onClick={async () => {
+              if (product.public_id) {
+                await deleteFromCloudinary(product.public_id);
+              }
+              handleChange(index, 'imageFile', null);
+              handleChange(index, 'preview', '');
+              handleChange(index, 'public_id', '');
+            }}
+            className="text-[10px] text-red-500 underline"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+    </div>
+    <div>
+      {products.length > 1 && (
+        <button
+          type="button"
+          onClick={() => removeRow(index)}
+          className="text-sm text-red-500 underline"
+        >
+          ✕
+        </button>
+      )}
+    </div>
+  </div>
+))}
+
 
               {!editModeData && (
                 <button

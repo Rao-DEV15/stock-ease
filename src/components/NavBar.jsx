@@ -23,7 +23,7 @@ const NavBar = ({ user, onLogout }) => {
       <div className="max-w-7xl mx-auto flex items-center justify-between px-2 sm:px-4">
         {/* Logo */}
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide truncate">
-          STOCK EASE
+          SA COSMETICS
         </h1>
 
         {/* Logout button */}
