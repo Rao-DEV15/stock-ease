@@ -83,18 +83,19 @@ const handleImageChange = (e, index) => {
   const removeRow = (index) => {
     setProducts((prev) => prev.filter((_, i) => i !== index));
   };
+  
 const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
 
-const auth = getAuth();
-const user = auth.currentUser;
+  const auth = getAuth();
+  const user = auth.currentUser;
 
-if (!user) {
-  alert("User not logged in");
-  setLoading(false);
-  return;
-}
+  if (!user) {
+    alert("User not logged in");
+    setLoading(false);
+    return;
+  }
 
   const validProducts = products.filter(
     (p) => p.name && p.price && p.quantity
@@ -106,12 +107,38 @@ if (!user) {
   }
 
   try {
+    // Step 1: Fetch existing products of this user
+    const q = query(collection(db, "products"), where("userId", "==", user.uid));
+    const snapshot = await getDocs(q);
+
     const processedProducts = [];
 
     for (const p of validProducts) {
+      const barcode = p.barcode?.trim();
+
+      // Step 2: Check for duplicates in Firestore (ignore current product if editing)
+      if (barcode) {
+        const isDuplicate = snapshot.docs.some(docSnap => {
+          const data = docSnap.data();
+          // If editing, ignore the current product
+          if (editModeData && docSnap.id === editModeData.id) return false;
+          return data.barcode?.trim() === barcode;
+        });
+
+        if (isDuplicate) {
+          alert(`Duplicate detected: Product with barcode "${barcode}" already exists! Skipping.`);
+          continue; // skip this product
+        }
+      }
+
+      // Step 3: Check for duplicates in the same form submission
+      if (processedProducts.some(prod => prod.barcode === barcode)) {
+        alert(`Duplicate detected in current form: Product with barcode "${barcode}" already added! Skipping.`);
+        continue;
+      }
+
       let imageUrl = "";
       let publicId = "";
-
       const imageWasRemoved = !p.preview && !p.imageFile;
 
       if (p.imageFile) {
@@ -120,35 +147,26 @@ if (!user) {
         publicId = uploadResult.public_id;
       }
 
-// Step 1: Fetch all products of this user
-const q = query(collection(db, "products"), where("userId", "==", user.uid));
-const snapshot = await getDocs(q);
+      // Step 4: Assign index
+      let maxIndex = 0;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (typeof data.index === "number" && data.index > maxIndex) {
+          maxIndex = data.index;
+        }
+      });
+      const newIndex = maxIndex + 1;
 
-// Step 2: Find max index
-let maxIndex = 0;
-snapshot.forEach((doc) => {
-  const data = doc.data();
-  if (typeof data.index === "number" && data.index > maxIndex) {
-    maxIndex = data.index;
-  }
-});
-
-// Step 3: Assign next index
-const newIndex = maxIndex + 1;
-
-// Step 4: Add new product
-processedProducts.push({
-  name: p.name,
-  price: p.price,
-  quantity: p.quantity,
-  barcode: p.barcode || '',
-  image: imageWasRemoved ? "" : imageUrl || p.image || "",
-  public_id: imageWasRemoved ? "" : publicId || p.public_id || "",
-  userId: user.uid,
-  index: newIndex,
-});
-
-
+      processedProducts.push({
+        name: p.name,
+        price: p.price,
+        quantity: p.quantity,
+        barcode: barcode || '',
+        image: imageWasRemoved ? "" : imageUrl || p.image || "",
+        public_id: imageWasRemoved ? "" : publicId || p.public_id || "",
+        userId: user.uid,
+        index: newIndex,
+      });
     }
 
     if (editModeData) {
