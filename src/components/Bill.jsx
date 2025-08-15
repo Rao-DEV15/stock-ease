@@ -82,11 +82,7 @@ const exportReceiptAsPDF = async () => {
 const fetchProduct = async (barcodeParam) => {
   const codeToUse = barcodeParam !== undefined ? barcodeParam : barcode;
   if (!codeToUse.trim()) return;
-
-  if (!user) {
-    alert("You must be logged in to fetch products.");
-    return;
-  }
+  if (!user) return alert("You must be logged in to fetch products.");
 
   try {
     const q = query(
@@ -96,42 +92,43 @@ const fetchProduct = async (barcodeParam) => {
     );
 
     const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) return alert("Product not found.");
 
-    if (querySnapshot.empty) {
-      alert("Product not found or you don't have permission to view it.");
-      return;
-    }
+    // use local snapshot for duplicate check
+    const currentProducts = [...products];
+    let productAdded = false;
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-
-      const exists = products.find((p) => p.id === doc.id);
+      const exists = currentProducts.find((p) => p.id === doc.id);
       if (exists) {
-        alert("Product already added");
-        return;
+        productAdded = true;
+      } else {
+        currentProducts.push({
+          id: doc.id,
+          name: data.name,
+          price: data.price,
+          qty: 1,
+          originalQty: Number(data.quantity),
+          discount: 0,
+        });
       }
-
-    setProducts((prev) => [
-  ...prev,
-  {
-    id: doc.id,
-    name: data.name,
-    price: data.price,
-    qty: 1,
-    originalQty: Number(data.quantity),
-    discount: 0, // new field for discount %
-  },
-]);
-
     });
 
-    // Clear barcode input only if not called from paste
+    if (productAdded && currentProducts.length === products.length) {
+      alert("Product already added");
+      return;
+    }
+
+    setProducts(currentProducts);
     if (barcodeParam === undefined) setBarcode("");
   } catch (error) {
     console.error("Error fetching product:", error);
     alert("Error fetching product");
   }
 };
+
+
 
 
   const removeProduct = (id) => {
@@ -381,6 +378,7 @@ await exportReceiptAsPDF();
                 <tbody>
                   {products.map((p, index) => (
                     <tr key={p.id}>
+
                       <td className="p-2 border text-center">{index + 1}</td>
                       <td className="p-2 border">{p.name}</td>
                       <td className="p-2 border">Rs {p.price}</td>
