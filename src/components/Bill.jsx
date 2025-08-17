@@ -62,17 +62,26 @@ const exportReceiptAsPDF = async () => {
   const canvas = await html2canvas(receiptElement, { scale: 2 });
   const imgData = canvas.toDataURL("image/png");
 
-  // Convert pixels to mm (1px ~ 0.264583 mm)
-  const imgWidthMM = 80; // width of receipt in mm (typical thermal receipt width)
-  const imgHeightMM = (canvas.height * imgWidthMM) / canvas.width;
+  // 📌 Standard thermal paper widths:
+  // - 58mm roll  -> usually 48mm printable
+  // - 80mm roll  -> usually 72mm printable
+  // Change this value according to your printer
+  const pageWidthMM = 58; 
 
+  // maintain aspect ratio
+  const pageHeightMM = (canvas.height * pageWidthMM) / canvas.width;
+
+  // Create custom page size
   const pdf = new jsPDF({
     orientation: "p",
     unit: "mm",
-    format: [imgWidthMM, imgHeightMM], // custom page size
+    format: [pageWidthMM, pageHeightMM],
   });
 
-  pdf.addImage(imgData, "PNG", 0, 0, imgWidthMM, imgHeightMM);
+  // Add image scaled to thermal width
+  pdf.addImage(imgData, "PNG", 0, 0, pageWidthMM, pageHeightMM);
+
+  // Save with timestamp
   pdf.save(`receipt-${Date.now()}.pdf`);
 };
 
