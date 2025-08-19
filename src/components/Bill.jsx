@@ -54,35 +54,22 @@ const [billingDate, setBillingDate] = useState(null);
       alert("Failed to load bills history.");
     }
     setLoadingHistory(false);
-  };
-const exportReceiptAsPDF = async () => {
-  const receiptElement = document.getElementById("Recipit");
-  if (!receiptElement) return;
+  };const exportReceiptAsPDF = async (props) => {
+  // props should be the same as your Recipit component props
+  const { customerName, products, totalAmount, totalCount, date } = props;
 
-  const canvas = await html2canvas(receiptElement, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
+  try {
+    const response = await fetch("http://localhost:3000/print", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerName, products, totalAmount, totalCount, date }),
+    });
 
-  // 📌 Standard thermal paper widths:
-  // - 58mm roll  -> usually 48mm printable
-  // - 80mm roll  -> usually 72mm printable
-  // Change this value according to your printer
-  const pageWidthMM = 58; 
-
-  // maintain aspect ratio
-  const pageHeightMM = (canvas.height * pageWidthMM) / canvas.width;
-
-  // Create custom page size
-  const pdf = new jsPDF({
-    orientation: "p",
-    unit: "mm",
-    format: [pageWidthMM, pageHeightMM],
-  });
-
-  // Add image scaled to thermal width
-  pdf.addImage(imgData, "PNG", 0, 0, pageWidthMM, pageHeightMM);
-
-  // Save with timestamp
-  pdf.save(`receipt-${Date.now()}.pdf`);
+    const data = await response.json();
+    console.log("Print response:", data);
+  } catch (err) {
+    console.error("Print error:", err);
+  }
 };
 
 
@@ -222,7 +209,7 @@ const totalAmount = products.reduce(
 
       setBillingDate(new Date());
  await new Promise((res) => setTimeout(res, 100));
-await exportReceiptAsPDF();
+await exportReceiptAsPDF({ customerName, products, totalAmount, totalCount,  date: new Date() })
 
       // Reset states
       setProducts([]);

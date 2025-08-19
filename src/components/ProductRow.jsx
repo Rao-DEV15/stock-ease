@@ -1,7 +1,6 @@
-import React from 'react';
-
 const ProductRow = ({
   product,
+  totalPrice, // receive it here
   index,
   startIndex,
   multiDeleteMode,
@@ -14,7 +13,7 @@ const ProductRow = ({
   handleLongPressEnd
 }) => (
   <div
-    className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-start border-b px-4 py-3 hover:bg-gray-50 text-sm"
+    className="grid grid-cols-5 gap-2 items-start border-b px-4 py-3 hover:bg-gray-50 text-sm"
     onMouseDown={handleLongPressStart}
     onMouseUp={handleLongPressEnd}
     onMouseLeave={handleLongPressEnd}
@@ -38,17 +37,12 @@ const ProductRow = ({
       )}
     </div>
 
-    <div>
-      <span className="sm:hidden font-semibold">Price: </span>
-      Rs. {product.price}
+    <div>Rs. {product.price}</div>
+    <div style={{ color: Number(product.quantity) <= 5 ? "red" : "inherit" }}>
+      {product.quantity}
     </div>
-
-    <div>
-      <span style={{ color: Number(product.quantity) <= 5 ? "red" : "inherit" }}>
-        {product.quantity}
-      </span>
-    </div>
-
+    <div>Rs. {totalPrice.toFixed(2)}</div> {/* Display the total price */}
+    
     <div className="flex gap-2 justify-start sm:justify-end flex-wrap">
       <button
         className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"

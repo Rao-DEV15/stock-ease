@@ -1,35 +1,27 @@
 import React, { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 
 const Recipit = ({ customerName, products, totalAmount, totalCount, date }) => {
   const receiptRef = useRef();
-const exportPDF = () => {
-  const input = receiptRef.current;
-  
-  // Temporarily remove padding to avoid wasted top space
-  const originalPadding = input.style.paddingTop;
-  input.style.paddingTop = "0px";
 
-  html2canvas(input, { scale: 3 }).then((canvas) => {
-    const imgData = canvas.toDataURL("image/png");
-    const receiptWidth = 58; // Thermal paper width in mm
-    const receiptHeight = (canvas.height * receiptWidth) / canvas.width;
-
-    const pdf = new jsPDF({
-      orientation: "p",
-      unit: "mm",
-      format: [receiptWidth, receiptHeight],
-    });
-
-    pdf.addImage(imgData, "PNG", 0, 0, receiptWidth, receiptHeight);
-    pdf.save("receipt.pdf");
-
-    // Restore padding after export
-    input.style.paddingTop = originalPadding;
-  });
-};
-
+  const exportPDF = () => {
+    // Send raw props directly to backend for printing
+    fetch("http://localhost:3000/print", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName,
+        products,
+        totalAmount,
+        totalCount,
+        date,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Print response:", data);
+      })
+      .catch((err) => console.error("Print error:", err));
+  };
 
   return (
     <div>
@@ -52,14 +44,20 @@ const exportPDF = () => {
         </p>
 
         {/* Customer Info */}
-        <p><strong>Customer:</strong> {customerName}</p>
+        <p>
+          <strong>Customer:</strong> {customerName}
+        </p>
         <p>
           <strong>Date:</strong>{" "}
-          {date ? new Date(date).toLocaleDateString() : new Date().toLocaleDateString()}
+          {date
+            ? new Date(date).toLocaleDateString()
+            : new Date().toLocaleDateString()}
         </p>
         <p className="mb-2">
           <strong>Time:</strong>{" "}
-          {date ? new Date(date).toLocaleTimeString() : new Date().toLocaleTimeString()}
+          {date
+            ? new Date(date).toLocaleTimeString()
+            : new Date().toLocaleTimeString()}
         </p>
 
         <hr className="border-gray-500 mb-2" />
@@ -78,7 +76,9 @@ const exportPDF = () => {
           <tbody>
             {products.map((p, i) => (
               <tr key={i} className={i % 2 === 0 ? "bg-gray-50" : ""}>
-                <td className="p-2 border-b border-dashed border-gray-300">{p.name}</td>
+                <td className="p-2 border-b border-dashed border-gray-300">
+                  {p.name}
+                </td>
                 <td
                   className="text-center p-2 border-b border-dashed border-gray-300"
                   style={{ fontFamily: "monospace" }}
@@ -99,9 +99,14 @@ const exportPDF = () => {
                 </td>
                 <td
                   className="text-right p-2 border-b border-dashed border-gray-300"
-                  style={{ paddingRight: "10px", minWidth: "40px", fontFamily: "monospace" }}
+                  style={{
+                    paddingRight: "10px",
+                    minWidth: "40px",
+                    fontFamily: "monospace",
+                  }}
                 >
-                  Rs {Math.round(p.price * p.qty * (1 - (p.discount || 0) / 100))}
+                  Rs{" "}
+                  {Math.round(p.price * p.qty * (1 - (p.discount || 0) / 100))}
                 </td>
               </tr>
             ))}
@@ -123,13 +128,17 @@ const exportPDF = () => {
 
         {/* Summary Below Table */}
         <hr className="border-gray-500 my-2" />
-        <p style={{ fontFamily: "monospace" }}><strong>Total Items:</strong> {totalCount}</p>
+        <p style={{ fontFamily: "monospace" }}>
+          <strong>Total Items:</strong> {totalCount}
+        </p>
 
         <hr className="border-gray-500 my-2" />
-        <p className="text-center text-xs">Thank you for shopping with us!</p>
+        <p className="text-center text-xs">
+          Thank you for shopping with us!
+        </p>
       </div>
 
-      {/* Hidden PDF Export Trigger */}
+      {/* Hidden Print Trigger */}
       <button onClick={exportPDF} id="exportPDFBtn" className="hidden"></button>
     </div>
   );
