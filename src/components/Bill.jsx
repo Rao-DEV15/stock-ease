@@ -12,8 +12,9 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import Recipit from "./Recipit";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+
+import BillsHistory from "./BillsHistory";
+
 const Bill = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [barcode, setBarcode] = useState("");
@@ -123,8 +124,6 @@ const fetchProduct = async (barcodeParam) => {
     alert("Error fetching product");
   }
 };
-
-
 
 
   const removeProduct = (id) => {
@@ -453,71 +452,8 @@ await exportReceiptAsPDF({ customerName, products, totalAmount, totalCount,  dat
       )}
 
       {/* Bills History Modal */}
-      {showHistory && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-4xl shadow-lg max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Bills History</h2>
-              <button
-                onClick={closeHistory}
-                className="text-red-500 font-bold text-lg"
-                disabled={loadingHistory}
-              >
-                ✕
-              </button>
-            </div>
+    {showHistory && <BillsHistory onClose={() => setShowHistory(false)} />}
 
-            {loadingHistory ? (
-              <p>Loading...</p>
-            ) : bills.length === 0 ? (
-              <p>No bills found.</p>
-            ) : (
-              <table className="w-full border">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="p-2 border">Sr No.</th>
-                    <th className="p-2 border">Customer Name</th>
-                    <th className="p-2 border">Date</th>
-                    <th className="p-2 border">Total Items</th>
-                    <th className="p-2 border">Total Amount</th>
-                    <th className="p-2 border">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bills.map((bill, index) => (
-                    <tr key={bill.id}>
-                      <td className="p-2 border text-center">{index + 1}</td>
-                      <td className="p-2 border">{bill.customerName}</td>
-                      <td className="p-2 border">
-                        {bill.createdAt.toDate
-                          ? bill.createdAt.toDate().toLocaleDateString()
-                          : new Date(bill.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-2 border text-center">{bill.totalCount}</td>
-                      <td className="p-2 border text-right">Rs {bill.totalAmount}</td>
-                      <td className="p-2 border text-center">
-                        <button
-                          onClick={() => handleDeleteBill(bill.id)}
-                          className="text-red-600 font-bold hover:underline"
-                          disabled={loadingHistory}
-                        >
-                          Delete
-                        </button>
-
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-
-
-
-
-          </div>
-        </div>
-      )}
     </>
   );
 };

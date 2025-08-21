@@ -10,9 +10,9 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
+  getDocs,
   orderBy,
   limit,
-  getDocs,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -34,7 +34,6 @@ const LowStockNotifications = () => {
     const productsRef = collection(db, "products");
     const notifRef = collection(db, "lowStockNotifications");
 
-    // Listen to product changes for current user in real-time
     const qProducts = query(productsRef, where("userId", "==", user.uid));
     const unsubscribeProducts = onSnapshot(qProducts, async (productsSnap) => {
       try {
@@ -54,7 +53,6 @@ const LowStockNotifications = () => {
           ...doc.data(),
         }));
 
-        // Create maps for quick lookup
         const lowStockMap = new Map(lowStockProducts.map((p) => [p.id, p]));
         const notifMap = new Map(existingNotifications.map((n) => [n.productId, n]));
 
@@ -88,7 +86,7 @@ const LowStockNotifications = () => {
           }
         }
 
-        // Fetch updated notifications to show
+        // Fetch updated notifications
         const updatedNotifQuery = query(
           notifRef,
           where("userId", "==", user.uid),
@@ -138,30 +136,33 @@ const LowStockNotifications = () => {
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-md w-full"
+            className="bg-white rounded-lg p-6 max-w-md w-full max-h-[70vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-xl font-bold mb-4">Low Stock Notifications</h2>
-            {notifications.length === 0 ? (
-              <p>All products have sufficient stock.</p>
-            ) : (
-              <ul>
-                {notifications.map((item, index) => (
-                  <li
-                    key={item.id}
-                    className="mb-2 flex justify-between items-center"
-                  >
-                    <span>
-                      <strong>
-                        {index + 1}. {item.productName}
-                      </strong>{" "}
-                      is low on stock (Qty: {item.quantity})
-                    </span>
-                    
-                  </li>
-                ))}
-              </ul>
-            )}
+
+            <div className="flex-1 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p>All products have sufficient stock.</p>
+              ) : (
+                <ul>
+                  {notifications.map((item, index) => (
+                    <li
+                      key={item.id}
+                      className="mb-2 flex justify-between items-center"
+                    >
+                      <span>
+                        <strong>
+                          {index + 1}. {item.productName}
+                        </strong>{" "}
+                        is low on stock (Qty: {item.quantity})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
             <button
               onClick={() => setShowModal(false)}
               className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"

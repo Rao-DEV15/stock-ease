@@ -48,6 +48,10 @@ const ProductList = ({ searchTerm }) => {
   const [maxPriceManuallyEdited, setMaxPriceManuallyEdited] = useState(false);
 
   const [showMobileActions, setShowMobileActions] = useState(false);
+// Watch searchTerm and reset current page
+useEffect(() => {
+  setCurrentPage(1);
+}, [searchTerm]);
 
   // Fetch products from Firestore
   useEffect(() => {

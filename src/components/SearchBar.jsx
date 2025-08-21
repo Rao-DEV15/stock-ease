@@ -7,7 +7,7 @@ const SearchBar = ({ searchTerm, setSearchTerm }) => {
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search by product name..."
+        placeholder="Search by product name...Or BarCode"
         className="w-full border border-gray-300 rounded-xl px-4 py-2 text-base sm:text-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
