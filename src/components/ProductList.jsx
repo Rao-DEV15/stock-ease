@@ -14,6 +14,9 @@ import ImageModal from './ImageModal';
 import PriceFilter from './PriceFilter';
 import MultiDeleteControls from './MultiDeleteControls';
 import ActionsBar from './ActionsBar';
+import CompanyProductsModal from './CompanyProductsModal';
+import Companies from './Companies';
+import Unssignedproducts from './Unssignedproducts';
 
 const addThings = async (validProducts) => {
   try {
@@ -254,11 +257,12 @@ useEffect(() => {
         </h2>
 
         <div className="flex flex-wrap gap-2 items-center">
-          <PriceFilter
-            minPrice={minPrice} setMinPrice={setMinPrice}
-            maxPrice={maxPrice} setMaxPrice={setMaxPrice}
-            maxPriceManuallyEdited={maxPriceManuallyEdited} setMaxPriceManuallyEdited={setMaxPriceManuallyEdited}
-          />
+       <div className="flex items-center space-x-1">
+  <CompanyProductsModal />
+  <Companies />
+  <Unssignedproducts/>
+</div>
+
 
           {/* Mobile toggle */}
           <div className="sm:hidden mb-2">
