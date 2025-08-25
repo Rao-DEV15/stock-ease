@@ -17,6 +17,7 @@ import ActionsBar from './ActionsBar';
 import CompanyProductsModal from './CompanyProductsModal';
 import Companies from './Companies';
 import Unssignedproducts from './Unssignedproducts';
+import StockModal from './StockModal';
 
 const addThings = async (validProducts) => {
   try {
@@ -258,6 +259,7 @@ useEffect(() => {
 
         <div className="flex flex-wrap gap-2 items-center">
        <div className="flex items-center space-x-1">
+    <StockModal/>
   <CompanyProductsModal />
   <Companies />
   <Unssignedproducts/>
