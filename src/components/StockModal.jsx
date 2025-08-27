@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { db } from "./Firebase"; // adjust path if needed
+import { db } from "./firebase";
 
 const StockModal = () => {
   const [isOpen, setIsOpen] = useState(false);
