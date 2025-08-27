@@ -3,7 +3,7 @@ import AddProduct from './AddProduct';
 import Spinner from './Spinner';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
-import { db } from './fireBase';
+import { db } from './FireBase';
 import { collection, addDoc, doc, setDoc, orderBy, query, onSnapshot, getDocs, getDoc, deleteDoc, where, Timestamp } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
