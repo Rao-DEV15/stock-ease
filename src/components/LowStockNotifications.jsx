@@ -87,12 +87,12 @@ const LowStockNotifications = () => {
         }
 
         // Fetch updated notifications
-        const updatedNotifQuery = query(
-          notifRef,
-          where("userId", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(20)
-        );
+      const updatedNotifQuery = query(
+  notifRef,
+  where("userId", "==", user.uid),
+  orderBy("createdAt", "desc")
+);
+
         const updatedNotifSnap = await getDocs(updatedNotifQuery);
         const updatedNotifData = updatedNotifSnap.docs.map((doc) => ({
           id: doc.id,
